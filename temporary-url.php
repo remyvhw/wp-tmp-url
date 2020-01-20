@@ -28,7 +28,6 @@ class TemporaryUrlPlugin {
 
 
     public function __construct() {
-        define( 'WP_DEBUG', true );
         new TemporaryUrlSessionInstantiator();
         new TemporaryUrlPluginSettings();
         new TemporaryUrlInterceptor();

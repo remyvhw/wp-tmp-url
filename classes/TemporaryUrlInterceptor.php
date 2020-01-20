@@ -21,6 +21,15 @@ class TemporaryUrlInterceptor {
         }
 
         /**
+         * Check if we're currently attempting to use a temporary url
+         */
+        if ($this->attemptTemporaryUrlAuthorization()) {
+            $_SESSION['temporary_url_authorized'] = true;
+            return;
+        }
+
+
+        /**
          * Handle redirection
          */
 
@@ -34,12 +43,32 @@ class TemporaryUrlInterceptor {
             $redirectionUrl .= "?";
         }
 
-        $redirectionUrl .= http_build_query(["uri"=>$_SERVER['REQUEST_URI']]);
+        $redirectionUrl .= http_build_query(["tmpurl_query"=>$_SERVER['REQUEST_URI']]);
 
-        
         header("Location: " . $redirectionUrl);
         exit();
         
+    }
+
+
+    public function attemptTemporaryUrlAuthorization() : bool {
+
+        // Some parameters are missing
+        if (!$_GET["tmpurl_hash"] || !$_GET["tmpurl_expiration"] || !$_GET["tmpurl_salt"]) {
+            return false;
+        }
+
+
+        // Authorization has expired
+        $expiration = intval($_GET["tmpurl_expiration"]);
+        if ($expiration < time()) {
+            return false;
+        }
+
+        $comparisonString = get_option('temporary_url_secret_key') . $expiration . $_GET["tmpurl_salt"];
+        
+        return password_verify($comparisonString, $_GET["tmpurl_hash"]);
+
     }
 
     public function __construct() {

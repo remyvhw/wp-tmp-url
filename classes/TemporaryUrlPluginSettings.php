@@ -35,10 +35,8 @@ class TemporaryUrlPluginSettings {
         add_settings_section(  'tmp_url_redirection_url', '', false, 'tmp_url_fields' );
     }
 
-
     public function setup_fields() {
         $fields = [
-            
             [
                 'uid' => 'temporary_url_redirection_url',
                 'label' => 'Guest redirection URL',
@@ -47,7 +45,7 @@ class TemporaryUrlPluginSettings {
                 'options' => false,
                 'placeholder' => 'https://example.com/redirect-to-wordpress-temp-url',
                 'helper' => false,
-                'supplemental' => "We'll redirect guest to that URL when they visit the site without having first visited a temporary URL (we'll take note of the visit in their PHP session). We'll append a <code>?uri=</code> parameter to that URL that you can use to redirect back to the intended page. If no URL is supplied, users will be redirect to the regular WP login page.",
+                'supplemental' => "We'll redirect guest to that URL when they visit the site without having first visited a temporary URL (we'll take note of the visit in their PHP session). We'll append a <code>?tmpurl_query=</code> parameter to that URL that you can use to redirect back to the intended page. If no URL is supplied, users will be redirect to the regular WP login page.",
                 'default' => ""
             ],
             [
@@ -58,7 +56,7 @@ class TemporaryUrlPluginSettings {
                 'options' => false,
                 'placeholder' => '',
                 'helper' => false,
-                'supplemental' => "This secret key will be used to generate a hash for our temporary URL. The hash will take the following string: <code>{secret}{expiration}{salt}</code>, where both expiration and salt are passed through a URL parameter. We'll check that the expiration (expressed as a timestamp in seconds since Epoch) is not yet past, that the salt is longer than 12 characters and we'll use the following function to check the genrated string again'st the provided hash: <code>password_verify(\$string, \$hash);</code>. To generate a password, you could use the following function <code>password_hash(\$string, PASSWORD_DEFAULT);</code>. Note that, even if you are using <code>PASSWORD_BCRYPT</code> and this function can manually take a salt value, the salt must always be concatenated to the <code>\$string</code>.",
+                'supplemental' => "This secret key will be used to generate a hash parameter (<code>&tmpurl_hash=</code>) for the temporary URL. The hash will take the following string: <code>{secret}{expiration}{salt}</code>, where both expiration and salt are passed through a URL parameter (<code>&tmpurl_expiration=</code> and <code>&tmpurl_salt=</code>). We'll check that the expiration (expressed as a timestamp in seconds since Epoch) is not yet past, that the salt is longer than 12 characters and we'll use the following function to check the genrated string again'st the provided hash: <code>password_verify(\$string, \$hash);</code>. To generate a password, you could use the following function <code>password_hash(\$string, PASSWORD_DEFAULT);</code>. Note that, even if you are using <code>PASSWORD_BCRYPT</code> and this function can manually take a salt value, the salt must always be concatenated to the <code>\$string</code>.",
                 'default' => bin2hex(openssl_random_pseudo_bytes(10))
             ]
         ];
