@@ -19,15 +19,19 @@
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
  */
-
+require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlSessionInstantiator.php');
 require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlPluginSettings.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlInterceptor.php');
 
 class TemporaryUrlPlugin {
     
 
 
     public function __construct() {
+        define( 'WP_DEBUG', true );
+        new TemporaryUrlSessionInstantiator();
         new TemporaryUrlPluginSettings();
+        new TemporaryUrlInterceptor();
     }
 
 }

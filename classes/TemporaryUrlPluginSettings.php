@@ -31,13 +31,14 @@ class TemporaryUrlPluginSettings {
 
 
     public function setup_sections() {
-        add_settings_section(  'tmp_url_shared_secret', 'Shared secret', false, 'tmp_url_fields' );
+        add_settings_section(  'tmp_url_shared_secret', '', false, 'tmp_url_fields' );
         add_settings_section(  'tmp_url_redirection_url', '', false, 'tmp_url_fields' );
     }
 
 
     public function setup_fields() {
         $fields = [
+            
             [
                 'uid' => 'temporary_url_redirection_url',
                 'label' => 'Guest redirection URL',
@@ -46,7 +47,7 @@ class TemporaryUrlPluginSettings {
                 'options' => false,
                 'placeholder' => 'https://example.com/redirect-to-wordpress-temp-url',
                 'helper' => false,
-                'supplemental' => "We'll redirect guest to that URL when they visit the site without having first visited a temporary URL (and their cache . We'll append ",
+                'supplemental' => "We'll redirect guest to that URL when they visit the site without having first visited a temporary URL (we'll take note of the visit in their PHP session). We'll append a <code>?uri=</code> parameter to that URL that you can use to redirect back to the intended page. If no URL is supplied, users will be redirect to the regular WP login page.",
                 'default' => ""
             ],
             [
