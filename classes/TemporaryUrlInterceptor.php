@@ -4,7 +4,7 @@
 class TemporaryUrlInterceptor {
     
     public function intercept_request() {
-        
+
         // Ignore any logged in users
         if (is_user_logged_in()) {
             return;
@@ -14,7 +14,7 @@ class TemporaryUrlInterceptor {
         if (is_admin() || $GLOBALS['pagenow'] === 'wp-login.php') {
             return;
         }
-
+        
         // Lastly, check if a session authorization has been set.
         if ($_SESSION['temporary_url_authorized'] ?? false) {
             return;
@@ -45,15 +45,19 @@ class TemporaryUrlInterceptor {
             return false;
         }
 
-
         // Authorization has expired
         $expiration = intval($_GET["tmpurl_expiration"]);
         
         if ($expiration < time()) {
             return false;
         }
-        
-        $comparisonString = $expiration . $_GET["tmpurl_salt"];
+        $salt = $_GET["tmpurl_salt"];
+
+        if (strlen($salt) < 12) {
+            return false;
+        }
+
+        $comparisonString = $expiration . $salt;
 
         $expectedHmac = hash_hmac("sha256", $comparisonString, get_option('temporary_url_secret_key'));
         return $expectedHmac === $_GET["tmpurl_hash"];

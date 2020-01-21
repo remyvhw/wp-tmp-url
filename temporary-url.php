@@ -25,9 +25,15 @@ require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlInterceptor.php
 
 class TemporaryUrlPlugin {
     
-
+    public function check_for_plugin() {
+        
+        if ( ! is_plugin_active( 'wp-session-manager/wp-session-manager.php' ) and current_user_can( 'activate_plugins' ) ) {
+            wp_die('Sorry, but this plugin requires "ericmann/wp-session-manager" to be installed and active. <br><a href="' . admin_url( 'plugins.php' ) . '">&laquo; Return to Plugins</a>');
+        }
+    }
 
     public function __construct() {
+        register_activation_hook( __FILE__, array( $this, 'check_for_plugin') );
         new TemporaryUrlSessionInstantiator();
         new TemporaryUrlPluginSettings();
         new TemporaryUrlInterceptor();
