@@ -24,7 +24,7 @@ class TemporaryUrlInterceptor {
          * Check if we're currently attempting to use a temporary url
          */
         if ($this->attemptTemporaryUrlAuthorization()) {
-            $_SESSION['temporary_url_authorized'] = true;
+            $_SESSION['temporary_url_authorized'] = time();
             return;
         }
 
@@ -41,6 +41,8 @@ class TemporaryUrlInterceptor {
         $redirectionUrl = get_option('temporary_url_redirection_url');
         if (strpos($redirectionUrl, '?') === false) {
             $redirectionUrl .= "?";
+        } else {
+            $redirectionUrl .= "&";
         }
 
         $redirectionUrl .= http_build_query(["tmpurl_query"=>$_SERVER['REQUEST_URI']]);
