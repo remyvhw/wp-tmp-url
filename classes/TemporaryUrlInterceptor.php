@@ -4,7 +4,7 @@
 class TemporaryUrlInterceptor {
     
     public function intercept_request() {
-
+        
         // Ignore any logged in users
         if (is_user_logged_in()) {
             return;
@@ -32,23 +32,8 @@ class TemporaryUrlInterceptor {
         /**
          * Handle redirection
          */
-
-         // If no redirection URL is provided, just redirect every guests to the login page.
-        if (!get_option('temporary_url_redirection_url') || get_option('temporary_url_redirection_url') === '') {
-            return auth_redirect();
-        }
-
-        $redirectionUrl = get_option('temporary_url_redirection_url');
-        if (strpos($redirectionUrl, '?') === false) {
-            $redirectionUrl .= "?";
-        } else {
-            $redirectionUrl .= "&";
-        }
-
-        $redirectionUrl .= http_build_query(["tmpurl_query"=>$_SERVER['REQUEST_URI']]);
-
-        header("Location: " . $redirectionUrl);
-        exit();
+        $this->handleRedirection();
+        
         
     }
 
@@ -63,14 +48,35 @@ class TemporaryUrlInterceptor {
 
         // Authorization has expired
         $expiration = intval($_GET["tmpurl_expiration"]);
+        
         if ($expiration < time()) {
             return false;
         }
-
-        $comparisonString = get_option('temporary_url_secret_key') . $expiration . $_GET["tmpurl_salt"];
         
-        return password_verify($comparisonString, $_GET["tmpurl_hash"]);
+        $comparisonString = $expiration . $_GET["tmpurl_salt"];
 
+        $expectedHmac = hash_hmac("sha256", $comparisonString, get_option('temporary_url_secret_key'));
+        return $expectedHmac === $_GET["tmpurl_hash"];
+
+    }
+
+    protected function handleRedirection() {
+         // If no redirection URL is provided, just redirect every guests to the login page.
+         if (!get_option('temporary_url_redirection_url') || get_option('temporary_url_redirection_url') === '') {
+            return auth_redirect();
+        }
+
+        $redirectionUrl = get_option('temporary_url_redirection_url');
+        if (strpos($redirectionUrl, '?') === false) {
+            $redirectionUrl .= "?";
+        } else {
+            $redirectionUrl .= "&";
+        }
+
+        $redirectionUrl .= http_build_query(["tmpurl_query"=>$_SERVER['REQUEST_URI']]);
+
+        header("Location: " . $redirectionUrl);
+        exit();
     }
 
     public function __construct() {
