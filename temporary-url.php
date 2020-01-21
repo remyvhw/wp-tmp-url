@@ -19,7 +19,6 @@
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
  */
-require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlSessionInstantiator.php');
 require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlPluginSettings.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'classes/TemporaryUrlInterceptor.php');
 
@@ -34,7 +33,6 @@ class TemporaryUrlPlugin {
 
     public function __construct() {
         register_activation_hook( __FILE__, array( $this, 'check_for_plugin') );
-        new TemporaryUrlSessionInstantiator();
         new TemporaryUrlPluginSettings();
         new TemporaryUrlInterceptor();
     }

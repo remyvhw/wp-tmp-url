@@ -16,7 +16,9 @@ class TemporaryUrlInterceptor {
         }
         
         // Lastly, check if a session authorization has been set.
-        if ($_SESSION['temporary_url_authorized'] ?? false) {
+        
+        $authorizedUntil = intval( $_SESSION['temporary_url_authorized'] ) ?? false;
+        if ($authorizedUntil && (time() < intval($authorizedUntil))) {
             return;
         }
 
@@ -24,7 +26,7 @@ class TemporaryUrlInterceptor {
          * Check if we're currently attempting to use a temporary url
          */
         if ($this->attemptTemporaryUrlAuthorization()) {
-            $_SESSION['temporary_url_authorized'] = time();
+            $_SESSION['temporary_url_authorized'] = intval(time()) + 6*3600;
             return;
         }
 
