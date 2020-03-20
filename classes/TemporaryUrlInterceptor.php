@@ -15,18 +15,19 @@ class TemporaryUrlInterceptor {
     }
 
     public function setAsAuthorized() {
-        setcookie($this->getCookieName(), $this->getCookieHash(time(), bin2hex(random_bytes(10))), time()+31556926);
+        setcookie($this->getCookieName(), $this->getCookieHash(time(), bin2hex(random_bytes(10))), time()+31556926, '/');
     }
 
     public function getIsAuthorizedByCookie() : bool {
         $cookieContent = $_COOKIE[$this->getCookieName()] ?? null;
+        
         if (!$cookieContent){
             return false;
         }
 
-        $cookieBites = explode(',', $cookieContent);
+        $cookieBites = explode('_', $cookieContent);
         $expectedHmac = $this->getCookieHash($cookieBites[0] ?? '', $cookieBites[1] ?? '');
-
+        
         return $expectedHmac === $cookieContent;
     }
     
