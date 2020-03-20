@@ -2,6 +2,33 @@
 
     
 class TemporaryUrlInterceptor {
+
+    public function getCookieName() {
+        return "wp_tempurl_cookie";
+    }
+
+    public function getCookieHash($time, $salt) {
+        $hashContent = $time . $salt;
+        $hash = hash_hmac("sha256", $hashContent, get_option('temporary_url_secret_key'));
+        $cookieContent = [$time, $salt, $hash];
+        return implode(',' , $cookieContent);
+    }
+
+    public function setAsAuthorized() {
+        setcookie($this->getCookieName(), $this->getCookieHash(time(), bin2hex(random_bytes(10))), time()+31556926);
+    }
+
+    public function getIsAuthorizedByCookie() : bool {
+        $cookieContent = $_COOKIE[$this->getCookieName()] ?? null;
+        if (!$cookieContent){
+            return false;
+        }
+
+        $cookieBites = explode(',', $cookieContent);
+        $expectedHmac = $this->getCookieHash($cookieBites[0] ?? '', $cookieBites[1] ?? '');
+
+        return $expectedHmac === $cookieContent;
+    }
     
     public function intercept_request() {
 
@@ -16,9 +43,7 @@ class TemporaryUrlInterceptor {
         }
         
         // Lastly, check if a session authorization has been set.
-        
-        $authorizedUntil = intval( $_SESSION['temporary_url_authorized'] ) ?? false;
-        if ($authorizedUntil && (time() < intval($authorizedUntil))) {
+        if ($this->getIsAuthorizedByCookie()) {
             return;
         }
 
@@ -26,7 +51,7 @@ class TemporaryUrlInterceptor {
          * Check if we're currently attempting to use a temporary url
          */
         if ($this->attemptTemporaryUrlAuthorization()) {
-            $_SESSION['temporary_url_authorized'] = intval(time()) + 6*3600;
+            $this->setAsAuthorized();
             return;
         }
 
