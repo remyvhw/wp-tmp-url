@@ -11,7 +11,7 @@ class TemporaryUrlInterceptor {
         $hashContent = $time . $salt;
         $hash = hash_hmac("sha256", $hashContent, get_option('temporary_url_secret_key'));
         $cookieContent = [$time, $salt, $hash];
-        return implode(',' , $cookieContent);
+        return implode('_' , $cookieContent);
     }
 
     public function setAsAuthorized() {
