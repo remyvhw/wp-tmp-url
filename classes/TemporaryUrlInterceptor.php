@@ -34,7 +34,7 @@ class TemporaryUrlInterceptor {
     public function intercept_request() {
 
         // Ignore jetpack urls
-        if (strpos($_SERVER['REQUEST_URI'], "jetpack/") !== false) {
+        if (strpos($_SERVER['REQUEST_URI'], "jetpack") !== false) {
             return;
         }
 
