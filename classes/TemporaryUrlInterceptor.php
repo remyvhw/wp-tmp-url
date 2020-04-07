@@ -33,6 +33,11 @@ class TemporaryUrlInterceptor {
     
     public function intercept_request() {
 
+        // Ignore jetpack urls
+        if (strpos($_SERVER['REQUEST_URI'], "jetpack/") !== false) {
+            return;
+        }
+
         // Ignore any logged in users
         if (is_user_logged_in()) {
             return;
